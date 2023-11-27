@@ -1,0 +1,44 @@
+import numpy as np 
+from time import time
+
+MAX = 999999
+
+def TSP(mask, pos, graph, dp,n, visited):
+	if mask == visited:
+		return graph[pos][0]
+	if dp[mask][pos] != -1:
+		return dp[mask][pos]
+	
+	ans = MAX 
+	for city in range(0, n):
+		if ((mask & (1 << city)) == 0):
+			new = graph[pos][city] + TSP(mask|(1<<city),city, graph, dp, n, visited)
+			ans = min(ans, new)
+	
+	dp[mask][pos]=ans
+	return dp[mask][pos]
+
+# this loads the distance matrix for the cities 
+
+n = 6  # number of nodes/cities
+graph = np.loadtxt('Algorithm-Project/30.txt', usecols=range(n), max_rows=n, dtype=int) # using numpy to read distances from txt and store in array
+print("Distance matrix: ")
+print(graph)
+
+visited = (1 << n) - 1
+r,c=2**n,n # this is for the momoization table, c is n and r is ( 1 << n) binary representation of 1 shifted n times to left, or 2^n
+dp=[[-1 for j in range(c)]for i in range(r)]
+for i in range(0, (1<<n)):
+	for j in range(0, n):
+		dp[i][j] = -1
+
+# calculating the execution time
+
+start_time = time()
+print("Minimum distance: ", TSP(1, 0, graph , dp, n, visited))
+end_time = time()
+time_taken = end_time-start_time
+print("Time taken in seconds in: ", time_taken)
+
+
+
